@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { FaStar, FaShoppingCart } from "react-icons/fa";
+import { API_BASE_URL } from "./../config";
 
 export default function ProductCard({ product }) {
   const renderStars = (rating) => {
@@ -21,7 +22,7 @@ export default function ProductCard({ product }) {
           src={
             product.image?.startsWith("http")
               ? product.image
-              : `http://localhost:8000/uploads/${product.image}`
+              : `${API_BASE_URL}/uploads/${product.image}`
           }
           alt={product.nom}
           className="w-full h-52 sm:h-60 object-cover"

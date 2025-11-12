@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaShoppingCart, FaSearch } from "react-icons/fa";
 import axios from "axios";
+import { API_BASE_URL } from "../../config";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -15,7 +16,7 @@ export default function ProductsPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/products");
+        const res = await axios.get(`${API_BASE_URL}/api/products`);
         setProducts(res.data);
       } catch {
         setError("Erreur lors du chargement des produits.");
@@ -34,7 +35,7 @@ export default function ProductsPage() {
     }
     try {
       await axios.post(
-        "http://localhost:8000/api/cart/add",
+        `${API_BASE_URL}/api/cart/add`,
         { id_product, quantity: 1 },
         { headers }
       );

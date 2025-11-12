@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaStar, FaTrashAlt, FaSearch } from "react-icons/fa";
 import AdminSidebar from "../../components/sidebar/AdminSidebar";
+import { API_BASE_URL } from "../../config";
 
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = useState([]);
@@ -15,7 +16,7 @@ export default function AdminReviewsPage() {
   // 🔹 Charger les avis
   const fetchAll = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/admin/reviews", { headers });
+      const res = await axios.get(`${API_BASE_URL}/api/admin/reviews`, { headers });
       setReviews(res.data);
     } catch {
       setError("Erreur lors du chargement des avis.");
@@ -33,7 +34,7 @@ export default function AdminReviewsPage() {
   const handleDelete = async (id_review) => {
     if (!window.confirm("Supprimer cet avis ?")) return;
     try {
-      await axios.delete(`http://localhost:8000/api/admin/reviews/${id_review}`, { headers });
+      await axios.delete(`${API_BASE_URL}/api/admin/reviews/${id_review}`, { headers });
       setReviews(reviews.filter((r) => r.id_review !== id_review));
     } catch {
       alert("Erreur lors de la suppression.");

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../config";
 import UserSidebar from "../../components/sidebar/UserSidebar";
 import { FaTrashAlt, FaShoppingCart } from "react-icons/fa";
 
@@ -11,7 +12,7 @@ export default function CartPage() {
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/cart", {
+        const res = await axios.get(`${API_BASE_URL}/api/cart`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setCartItems(res.data.items);
@@ -25,7 +26,7 @@ export default function CartPage() {
 
   const handleRemove = async (id_product) => {
     try {
-      await axios.delete(`http://localhost:8000/api/cart/remove/${id_product}`, {
+      await axios.delete(`${API_BASE_URL}/api/cart/remove/${id_product}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCartItems(cartItems.filter((item) => item.id_product !== id_product));

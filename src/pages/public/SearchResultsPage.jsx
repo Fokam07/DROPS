@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
 import ProductCard from "../../components/ProductCard";
+import { API_BASE_URL } from "../../config";
 
 export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
@@ -13,7 +14,7 @@ export default function SearchResultsPage() {
     if (!query) return;
     setLoading(true);
     axios
-      .get(`http://localhost:8000/api/products/search?search=${encodeURIComponent(query)}`)
+      .get(`${API_BASE_URL}/api/products/search?search=${encodeURIComponent(query)}`)
       .then((res) => setResults(res.data))
       .catch(() => setResults([]))
       .finally(() => setLoading(false));

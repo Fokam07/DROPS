@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import UserSidebar from "../../components/sidebar/UserSidebar";
 import { FaCommentDots, FaStar } from "react-icons/fa";
+import { API_BASE_URL } from "../../config";
 
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState([]);
@@ -10,7 +11,7 @@ export default function ReviewsPage() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/reviews/user", {
+        const res = await axios.get(`${API_BASE_URL}/api/reviews/user`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setReviews(res.data);

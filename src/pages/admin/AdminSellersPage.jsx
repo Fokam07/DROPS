@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaStore, FaTrashAlt, FaToggleOn, FaToggleOff, FaSearch } from "react-icons/fa";
 import AdminSidebar from "../../components/sidebar/AdminSidebar";
+import { API_BASE_URL } from "../../config";
 
 export default function AdminSellersPage() {
   const [sellers, setSellers] = useState([]);
@@ -14,7 +15,7 @@ export default function AdminSellersPage() {
 
   const fetchSellers = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/admin/sellers", { headers });
+      const res = await axios.get(`${API_BASE_URL}/api/admin/sellers`, { headers });
       setSellers(res.data);
     } catch {
       setError("Erreur lors du chargement des vendeurs.");
@@ -31,7 +32,7 @@ export default function AdminSellersPage() {
   const toggleActive = async (id_user, active) => {
     try {
       await axios.put(
-        `http://localhost:8000/api/admin/sellers/${id_user}/toggle`,
+        `${API_BASE_URL}/api/admin/sellers/${id_user}/toggle`,
         { active: !active },
         { headers }
       );
@@ -44,7 +45,7 @@ export default function AdminSellersPage() {
   const handleDelete = async (id_user) => {
     if (!window.confirm("Supprimer ce vendeur ?")) return;
     try {
-      await axios.delete(`http://localhost:8000/api/admin/sellers/${id_user}`, { headers });
+      await axios.delete(`${API_BASE_URL}/api/admin/sellers/${id_user}`, { headers });
       setSellers(sellers.filter((s) => s.id_user !== id_user));
     } catch {
       alert("Erreur lors de la suppression du vendeur.");

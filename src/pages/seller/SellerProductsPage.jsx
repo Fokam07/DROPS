@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import axios from "axios";
-import { FaBoxOpen, FaPlus, FaEdit, FaTrash, FaImage } from "react-icons/fa";
+import { API_BASE_URL } from "../../config";
+import { FaBoxOpen, FaPlus, FaEdit, FaTrash } from "react-icons/fa"; // ✅ FaImage retiré (inutile)
 import SellerNavbar from "../../components/navbars/SellerNavbar";
 
 export default function SellerProductsPage() {
@@ -20,34 +21,33 @@ export default function SellerProductsPage() {
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
-  const headers = { Authorization: `Bearer ${token}` };
+  const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
   // ======================
   // 🔄 Chargement données
   // ======================
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/sellers/products", { headers });
+      const res = await axios.get(`${API_BASE_URL}/api/sellers/products`, { headers });
       setProducts(res.data);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [headers]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/categories", { headers });
+      const res = await axios.get(`${API_BASE_URL}/api/categories`, { headers });
       setCategories(res.data);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [headers]);
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fetchProducts, fetchCategories]); // ✅ dépendances ajoutées
 
   // ======================
   // 🧹 Reset Form
@@ -73,21 +73,17 @@ export default function SellerProductsPage() {
     e.preventDefault();
     try {
       const formData = new FormData();
-      formData.append("nom", form.nom);
-      formData.append("description", form.description);
-      formData.append("prix", form.prix);
-      formData.append("stock", form.stock);
-      formData.append("id_category", form.id_category);
-      if (form.image_file) formData.append("image_file", form.image_file);
-      if (form.image_url) formData.append("image_url", form.image_url);
+      Object.entries(form).forEach(([key, value]) => {
+        if (value) formData.append(key, value);
+      });
 
       if (editingId) {
-        await axios.put(`http://localhost:8000/api/sellers/products/${editingId}`, formData, {
+        await axios.put(`${API_BASE_URL}/api/sellers/products/${editingId}`, formData, {
           headers: { ...headers, "Content-Type": "multipart/form-data" },
         });
         alert("✅ Produit mis à jour !");
       } else {
-        await axios.post("http://localhost:8000/api/sellers/products", formData, {
+        await axios.post(`${API_BASE_URL}/api/sellers/products`, formData, {
           headers: { ...headers, "Content-Type": "multipart/form-data" },
         });
         alert("✅ Produit ajouté avec succès !");
@@ -124,7 +120,7 @@ export default function SellerProductsPage() {
   const handleDelete = async (id_product) => {
     if (!window.confirm("Supprimer ce produit ?")) return;
     try {
-      await axios.delete(`http://localhost:8000/api/sellers/products/${id_product}`, { headers });
+      await axios.delete(`${API_BASE_URL}/api/sellers/products/${id_product}`, { headers });
       setProducts(products.filter((p) => p.id_product !== id_product));
     } catch {
       alert("Erreur lors de la suppression du produit.");
@@ -185,7 +181,6 @@ export default function SellerProductsPage() {
             className="border rounded-lg px-3 py-2"
           />
 
-          {/* 📝 Description */}
           <textarea
             placeholder="Description du produit"
             value={form.description}
@@ -208,7 +203,7 @@ export default function SellerProductsPage() {
             ))}
           </select>
 
-          {/* 📸 Image : upload ou lien */}
+          {/* 📸 Image */}
           <div className="flex flex-col gap-2 md:col-span-2">
             <label className="text-sm text-gray-600">Image (upload ou lien)</label>
             <input
@@ -224,7 +219,6 @@ export default function SellerProductsPage() {
               onChange={handleUrlChange}
               className="border rounded-lg px-3 py-2"
             />
-
             {preview && (
               <img
                 src={preview}
@@ -306,3 +300,4 @@ export default function SellerProductsPage() {
     </div>
   );
 }
+

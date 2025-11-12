@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import UserSidebar from "../../components/sidebar/UserSidebar";
 import { FaCog, FaSave } from "react-icons/fa";
+import { API_BASE_URL } from "../../config";
 
 export default function SettingsPage() {
   const [form, setForm] = useState({ prenom: "", nom: "", email: "" });
@@ -19,7 +20,7 @@ export default function SettingsPage() {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.put("http://localhost:8000/api/users/me", form, {
+      const res = await axios.put(`${API_BASE_URL}/api/users/me`, form, {
         headers: { Authorization: `Bearer ${token}` },
       });
       localStorage.setItem("user", JSON.stringify(res.data));

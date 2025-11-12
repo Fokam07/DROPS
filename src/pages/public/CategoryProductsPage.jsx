@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaStar, FaShoppingBag } from "react-icons/fa";
+import { API_BASE_URL } from "../../config";
 
 export default function CategoryProductsPage() {
   const { id } = useParams();
@@ -11,7 +12,7 @@ export default function CategoryProductsPage() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:8000/api/products/public/category/${id}`)
+      .get(`${API_BASE_URL}/api/products/public/category/${id}`)
       .then((res) => {
         setProducts(res.data);
         if (res.data.length > 0) setCategoryName(res.data[0].category?.nom || "Catégorie");

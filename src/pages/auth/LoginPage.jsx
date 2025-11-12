@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { FaLock, FaEnvelope, FaStar, FaArrowLeft } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../config";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await axios.post("http://localhost:8000/api/auth/login", {
+      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
         email,
         password,
       });

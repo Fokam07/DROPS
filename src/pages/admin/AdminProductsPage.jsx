@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaBoxOpen, FaPlus, FaTrashAlt, FaSearch } from "react-icons/fa";
 import AdminSidebar from "../../components/sidebar/AdminSidebar";
+import { API_BASE_URL } from "../../config";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -27,9 +28,9 @@ export default function AdminProductsPage() {
   const fetchAllData = async () => {
     try {
       const [prodRes, catRes, sellRes] = await Promise.all([
-        axios.get("http://localhost:8000/api/admin/products", { headers }),
-        axios.get("http://localhost:8000/api/admin/categories", { headers }),
-        axios.get("http://localhost:8000/api/admin/sellers", { headers }),
+        axios.get(`${API_BASE_URL}/api/admin/products`, { headers }),
+        axios.get(`${API_BASE_URL}/api/admin/categories`, { headers }),
+        axios.get(`${API_BASE_URL}/api/admin/sellers`, { headers }),
       ]);
       setProducts(prodRes.data);
       setCategories(catRes.data);
@@ -72,7 +73,7 @@ export default function AdminProductsPage() {
       if (form.image_file) formData.append("image_file", form.image_file);
       if (form.image_url) formData.append("image_url", form.image_url);
 
-      await axios.post("http://localhost:8000/api/admin/products", formData, {
+      await axios.post(`${API_BASE_URL}/api/admin/products`, formData, {
         headers: { ...headers, "Content-Type": "multipart/form-data" },
       });
 
@@ -87,7 +88,7 @@ export default function AdminProductsPage() {
   const handleDelete = async (id_product) => {
     if (!window.confirm("Supprimer ce produit ?")) return;
     try {
-      await axios.delete(`http://localhost:8000/api/admin/products/${id_product}`, { headers });
+      await axios.delete(`${API_BASE_URL}/api/admin/products/${id_product}`, { headers });
       setProducts(products.filter((p) => p.id_product !== id_product));
     } catch {
       alert("Erreur lors de la suppression du produit.");

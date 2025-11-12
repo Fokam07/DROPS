@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../config";
 import { FaClipboardList, FaSearch, FaUser, FaMoneyBillWave } from "react-icons/fa";
 import SellerNavbar from "../../components/navbars/SellerNavbar";
 
@@ -16,7 +17,7 @@ export default function SellerOrdersPage() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:8000/api/sellers/orders", { headers });
+      const res = await axios.get(`${API_BASE_URL}/api/sellers/orders`, { headers });
       setOrders(res.data);
     } catch (err) {
       console.error("Erreur chargement commandes :", err);

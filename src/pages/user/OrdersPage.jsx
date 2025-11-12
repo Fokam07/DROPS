@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import UserSidebar from "../../components/sidebar/UserSidebar";
 import { FaClipboardList } from "react-icons/fa";
+import { API_BASE_URL } from "../../config";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -10,7 +11,7 @@ export default function OrdersPage() {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/orders", {
+        const res = await axios.get(`${API_BASE_URL}/api/orders`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setOrders(res.data);

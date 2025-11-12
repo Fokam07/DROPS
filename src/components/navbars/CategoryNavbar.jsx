@@ -13,6 +13,7 @@ import {
   FaGift,
 } from "react-icons/fa";
 import axios from "axios";
+import { API_BASE_URL } from "../../config";
 
 export default function CategoryNavbar() {
   const [categories, setCategories] = useState([]);
@@ -20,9 +21,10 @@ export default function CategoryNavbar() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/categories")
-      .then((res) => setCategories(res.data))
-      .catch(() => setCategories([]));
+  .get(`${API_BASE_URL}/api/categories`)
+  .then((res) => setCategories(res.data))
+  .catch(() => setCategories([]));
+
 
     // 🎯 Ajoute un effet sticky / shadow dynamique
     const handleScroll = () => {

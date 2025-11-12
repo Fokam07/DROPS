@@ -1,12 +1,19 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
-import {
-  FaBoxOpen,
-  FaClipboardList,
-  FaMoneyBillWave,
-} from "react-icons/fa";
+import { API_BASE_URL } from "../../config";
+import { FaBoxOpen, FaClipboardList, FaMoneyBillWave } from "react-icons/fa";
 import SellerNavbar from "../../components/navbars/SellerNavbar";
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 export default function SellerDashboard() {
   const [stats, setStats] = useState({
@@ -19,19 +26,21 @@ export default function SellerDashboard() {
 
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const token = localStorage.getItem("token");
-  const headers = { Authorization: `Bearer ${token}` };
+
+  // ✅ headers mémorisés pour éviter le warning useEffect
+  const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const [prods, orders] = await Promise.all([
-          axios.get("http://localhost:8000/api/sellers/products", { headers }),
-          axios.get("http://localhost:8000/api/sellers/orders", { headers }),
+          axios.get(`${API_BASE_URL}/api/sellers/products`, { headers }),
+          axios.get(`${API_BASE_URL}/api/sellers/orders`, { headers }),
         ]);
 
         const totalRevenue = orders.data.reduce((sum, o) => sum + (o.total || 0), 0);
 
-        // 🧾 Données factices pour les graphiques (à relier à ton backend plus tard)
+        // 🧾 Données simulées
         const fakeSales = [
           { month: "Jan", revenue: 220 },
           { month: "Fév", revenue: 480 },
@@ -65,7 +74,7 @@ export default function SellerDashboard() {
     };
 
     fetchStats();
-  }, []);
+  }, [headers]); // ✅ headers ajouté comme dépendance
 
   const COLORS = ["#22C55E", "#3B82F6", "#F59E0B", "#EF4444", "#8B5CF6", "#06B6D4"];
 
@@ -167,6 +176,3 @@ function StatCard({ icon, label, value, color }) {
     </div>
   );
 }
-
-
-

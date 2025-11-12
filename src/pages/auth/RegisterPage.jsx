@@ -25,7 +25,7 @@ export default function RegisterPage() {
     setSuccess(false);
 
     try {
-      await axios.post("http://localhost:8000/api/users/register", formData);
+      await axios.post("https://drops-backend-nl6e.onrender.com/api/users/register", formData);
       setSuccess(true);
       setTimeout(() => navigate("/login"), 1500);
     } catch (err) {

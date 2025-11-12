@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaShoppingCart, FaStar } from "react-icons/fa";
 import { IoArrowBack } from "react-icons/io5";
+import { API_BASE_URL } from "../../config";
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
@@ -36,21 +37,29 @@ export default function ProductDetailsPage() {
     const fetchData = async () => {
       try {
         const [productRes, reviewsRes] = await Promise.all([
-          axios.get(`http://localhost:8000/api/products/${id}`),
-          axios.get(`http://localhost:8000/api/reviews/product/${id}`),
+          axios.get(`${API_BASE_URL}/api/products/${id}`),
+          axios.get(`${API_BASE_URL}/api/reviews/product/${id}`),
         ]);
 
         const p = productRes.data;
         const r = reviewsRes.data;
 
-        // ✅ Corriger l’URL image
-        if (p.image) {
-          if (p.image.startsWith("http")) {
-            p.image_url = p.image;
-          } else {
-            p.image_url = `http://localhost:8000/uploads/${p.image}`;
-          }
-        }
+        // ✅ Corriger l’URL image proprement
+if (p.image) {
+  let cleaned = p.image.replace(/\\/g, "/").replace("uploads/uploads/", "uploads/");
+
+  if (cleaned.startsWith("http")) {
+    p.image_url = cleaned;
+  } else {
+    // On s'assure qu'il n’y a qu’un seul "uploads/"
+    cleaned = cleaned.replace(/^\/+/, ""); // supprime slashs début
+    if (!cleaned.startsWith("uploads/")) {
+      cleaned = `uploads/${cleaned}`;
+    }
+    p.image_url = `${API_BASE_URL}/${cleaned}`;
+  }
+}
+
 
         setProduct(p);
         setReviews(r.avis || []);
@@ -87,7 +96,7 @@ export default function ProductDetailsPage() {
       }
 
       await axios.post(
-        `http://localhost:8000/api/cart/add/${product.id_product}`,
+        `${API_BASE_URL}/cart/add/${product.id_product}`,
         { quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -109,7 +118,7 @@ export default function ProductDetailsPage() {
     try {
       setIsSubmitting(true);
       await axios.post(
-        `http://localhost:8000/api/reviews/${id}`,
+        `${API_BASE_URL}/api/reviews/${id}`,
         newReview,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -124,7 +133,7 @@ export default function ProductDetailsPage() {
 
       // 🔄 Recharger les avis
       const reviewsRes = await axios.get(
-        `http://localhost:8000/api/reviews/product/${id}`
+        `${API_BASE_URL}/api/reviews/product/${id}`
       );
       setReviews(reviewsRes.data.avis || []);
     } catch (err) {

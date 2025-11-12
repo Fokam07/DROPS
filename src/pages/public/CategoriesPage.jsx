@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../config";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8000/api/admin/categories").then((res) => {
+    axios.get(`${API_BASE_URL}/api/admin/categories`).then((res) => {
       setCategories(res.data);
     });
   }, []);

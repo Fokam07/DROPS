@@ -12,6 +12,7 @@ import { RiShoppingBag3Fill } from "react-icons/ri";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import HomeCarousel from "../../components/HomeCarousel";
+import { API_BASE_URL } from "../../config";
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
@@ -19,7 +20,7 @@ export default function HomePage() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/products")
+      .get(`${API_BASE_URL}/api/products`)
       .then((res) => {
         setProducts(res.data.slice(0, 8));
         setLoading(false);
@@ -314,7 +315,7 @@ function ProductCard({ product }) {
 
   const imageSrc = product.image?.startsWith("http")
     ? product.image
-    : `http://localhost:8000/uploads/${product.image}`;
+    : `${API_BASE_URL}/uploads/${product.image}`;
 
   return (
     <Link

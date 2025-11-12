@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaUsers, FaTrashAlt, FaPlus, FaSearch } from "react-icons/fa";
 import AdminSidebar from "../../components/sidebar/AdminSidebar";
+import { API_BASE_URL } from "../../config";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([]);
@@ -22,7 +23,7 @@ export default function AdminUsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/users", { headers });
+      const res = await axios.get("https://drops-backend-nl6e.onrender.com/api/admin/users", { headers });
       setUsers(res.data);
     } catch {
       setError("Erreur lors du chargement des utilisateurs.");
@@ -39,7 +40,7 @@ export default function AdminUsersPage() {
   const handleDelete = async (id_user) => {
     if (!window.confirm("Supprimer cet utilisateur ?")) return;
     try {
-      await axios.delete(`http://localhost:8000/api/admin/users/${id_user}`, { headers });
+      await axios.delete(`https://drops-backend-nl6e.onrender.com/api/admin/users/{id_user}`, { headers });
       setUsers(users.filter((u) => u.id_user !== id_user));
     } catch {
       alert("Erreur lors de la suppression.");
@@ -53,7 +54,7 @@ export default function AdminUsersPage() {
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8000/api/users/admin/create", form, { headers });
+      await axios.post(`${API_BASE_URL}/api/users/admin/create`, form, { headers });
       resetForm();
       fetchUsers();
     } catch (err) {

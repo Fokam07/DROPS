@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import useCartCount from "../../hooks/useCartCount";
+import { API_BASE_URL } from "../../config";
 
 export default function UserNavbar({ userName = "Utilisateur" }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -23,7 +24,7 @@ export default function UserNavbar({ userName = "Utilisateur" }) {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8000/api/categories")
+      .get(`${API_BASE_URL}/api/categories`)
       .then((res) => setCategories(res.data))
       .catch(() => setCategories([]));
   }, []);

@@ -28,10 +28,13 @@ export default function AdminDashboard() {
   const token = localStorage.getItem("token");
   const headers = useMemo(() => ({ Authorization: `Bearer ${token}` }), [token]);
 
+  // ✅ API Render (plus de localhost)
+  const API_URL = "https://drops-backend-nl6e.onrender.com/api/admin/dashboard";
+
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/admin/dashboard", { headers });
+        const res = await axios.get(API_URL, { headers });
         setStats(res.data);
       } catch (err) {
         console.error("Erreur chargement statistiques :", err);
@@ -41,7 +44,7 @@ export default function AdminDashboard() {
       }
     };
     fetchStats();
-  }, [headers]);
+  }, [headers, API_URL]);
 
   const COLORS = ["#22C55E", "#EAB308", "#EF4444", "#3B82F6", "#9333EA"];
 
@@ -51,7 +54,12 @@ export default function AdminDashboard() {
         ? [
             { name: "Clients", value: stats.utilisateurs.clients || 0 },
             { name: "Vendeurs", value: stats.utilisateurs.vendeurs || 0 },
-            { name: "Admin", value: stats.utilisateurs.total - (stats.utilisateurs.clients + stats.utilisateurs.vendeurs) },
+            {
+              name: "Admin",
+              value:
+                stats.utilisateurs.total -
+                (stats.utilisateurs.clients + stats.utilisateurs.vendeurs),
+            },
           ]
         : [],
     [stats]
@@ -77,7 +85,7 @@ export default function AdminDashboard() {
     <div className="flex min-h-screen bg-smokeWhite font-outfit">
       <AdminSidebar />
 
-      {/* ✅ Responsive layout : marge seulement sur desktop */}
+      {/* ✅ Responsive layout */}
       <main className="flex-1 ml-0 md:ml-64 p-6 md:p-8 w-full md:w-[calc(100%-16rem)] transition-all duration-300">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl font-bold text-dropsDark mb-8 text-center md:text-left">
@@ -167,3 +175,4 @@ function StatCard({ icon, label, value, color }) {
     </div>
   );
 }
+

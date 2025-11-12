@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../../config";
 import { FaUserCircle, FaLock, FaSave } from "react-icons/fa";
 import SellerNavbar from "../../components/navbars/SellerNavbar";
 
@@ -18,7 +19,7 @@ export default function SellerProfilePage() {
   // Charger les infos vendeur
   const fetchSeller = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/sellers/me", { headers });
+      const res = await axios.get(`${API_BASE_URL}/api/sellers/me`, { headers });
       setSeller(res.data);
     } catch (err) {
       console.error("Erreur chargement profil vendeur :", err);
@@ -34,7 +35,7 @@ export default function SellerProfilePage() {
   const handleSave = async () => {
     try {
       await axios.put(
-        `http://localhost:8000/api/users/${seller.id_user}`,
+        `${API_BASE_URL}/api/users/${seller.id_user}`,
         {
           nom: seller.nom,
           prenom: seller.prenom,
@@ -54,7 +55,7 @@ export default function SellerProfilePage() {
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:8000/api/auth/change-password`, passwordForm, { headers });
+      await axios.put(`${API_BASE_URL}/api/auth/change-password`, passwordForm, { headers });
       setPasswordForm({ old_password: "", new_password: "" });
       setMessage({ type: "success", text: "Mot de passe changé avec succès 🔒" });
       setTimeout(() => setMessage({ type: "", text: "" }), 3000);

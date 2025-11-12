@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import UserSidebar from "../../components/sidebar/UserSidebar";
 import { FaShoppingCart, FaSearch, FaFilter } from "react-icons/fa";
 import StarRating from "../../components/StarRating";
+import { API_BASE_URL } from "../../config";
 
 export default function UserDashboard() {
   const [products, setProducts] = useState([]);
@@ -18,22 +19,22 @@ export default function UserDashboard() {
     min_price: "",
     max_price: "",
   });
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🔍 Charger les produits selon filtres + catégorie URL
-  const fetchProducts = async () => {
+  // 🔍 Charger les produits selon filtres + recherche
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      let url = "http://localhost:8000/api/products/search?";
       const queryParams = new URLSearchParams();
 
-      if (searchQuery.trim()) queryParams.append("q", searchQuery);
+      if (searchQuery.trim()) queryParams.append("q", searchQuery.trim());
       if (filters.category_id) queryParams.append("category_id", filters.category_id);
       if (filters.min_price) queryParams.append("min_price", filters.min_price);
       if (filters.max_price) queryParams.append("max_price", filters.max_price);
 
-      url += queryParams.toString();
+      const url = `${API_BASE_URL}/api/products/search?${queryParams.toString()}`;
 
       const res = await axios.get(url);
       setProducts(Array.isArray(res.data) ? res.data : []);
@@ -45,19 +46,19 @@ export default function UserDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, searchQuery]);
 
   // 📦 Charger les catégories
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/categories/");
+      const res = await axios.get(`${API_BASE_URL}/api/categories`);
       setCategories(res.data);
     } catch (err) {
       console.error("Erreur catégories :", err);
     }
-  };
+  }, []);
 
-  // 🎯 Met à jour les produits selon la catégorie dans l’URL
+  // 🎯 Met à jour la catégorie si elle vient de l'URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const category = params.get("category");
@@ -67,10 +68,11 @@ export default function UserDashboard() {
     }
   }, [location.search]);
 
+  // 🔁 Charger produits + catégories
   useEffect(() => {
     fetchCategories();
     fetchProducts();
-  }, [filters.category_id]);
+  }, [fetchCategories, fetchProducts]); // ✅ corrigé
 
   const handleAddToCart = async (id_product) => {
     try {
@@ -80,7 +82,7 @@ export default function UserDashboard() {
         return;
       }
       await axios.post(
-        `http://localhost:8000/api/cart/add/${id_product}`,
+        `${API_BASE_URL}/api/cart/add/${id_product}`,
         { quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -242,95 +244,81 @@ export default function UserDashboard() {
           )}
 
           {!loading && !error && products.length > 0 && (
-  <motion.div
-    className="
-      grid
-      grid-cols-2
-      sm:grid-cols-3
-      md:grid-cols-4
-      lg:grid-cols-5
-      xl:grid-cols-5
-      gap-3 sm:gap-4 md:gap-5
-    "
-    initial="hidden"
-    animate="visible"
-    variants={{
-      hidden: { opacity: 0 },
-      visible: {
-        opacity: 1,
-        transition: { staggerChildren: 0.05 },
-      },
-    }}
-  >
-    {products.map((prod) => (
-      <motion.div
-        key={prod.id_product}
-        className="
-          bg-white rounded-xl shadow-sm hover:shadow-lg
-          transition-all duration-300 p-3
-          relative group border border-gray-100
-          flex flex-col justify-between
-        "
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        {/* 🖼️ Image carré */}
-        <div className="overflow-hidden rounded-lg mb-2 aspect-square">
-          <img
-            src={
-              prod.image && prod.image.startsWith("http")
-                ? prod.image
-                : `http://localhost:8000/uploads/${prod.image}`
-            }
-            alt={prod.nom}
-            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
-          />
-        </div>
+            <motion.div
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-5"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.05 },
+                },
+              }}
+            >
+              {products.map((prod) => (
+                <motion.div
+                  key={prod.id_product}
+                  className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 p-3 relative group border border-gray-100 flex flex-col justify-between"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {/* 🖼️ Image carré */}
+                  <div className="overflow-hidden rounded-lg mb-2 aspect-square">
+                    <img
+                      src={prod.image_url || "/placeholder.jpg"}
+                      alt={prod.nom}
+                      onError={(e) => {
+                        e.target.src = "/placeholder.jpg";
+                      }}
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
 
-        {/* 🏷️ Nom produit */}
-        <h3 className="font-semibold text-sm sm:text-base text-dropsDark truncate">
-          {prod.nom}
-        </h3>
+                  {/* 🏷️ Nom produit */}
+                  <h3 className="font-semibold text-sm sm:text-base text-dropsDark truncate">
+                    {prod.nom}
+                  </h3>
 
-        {/* ⭐ Avis */}
-        <div className="flex items-center mt-1 mb-1">
-          <StarRating value={prod.note_moyenne || 5} />
-          <span className="text-gray-500 text-xs ml-1">
-            ({prod.nb_reviews || 0})
-          </span>
-        </div>
+                  {/* ⭐ Avis */}
+                  <div className="flex items-center mt-1 mb-1">
+                    <StarRating value={prod.note_moyenne || 5} />
+                    <span className="text-gray-500 text-xs ml-1">
+                      ({prod.nb_reviews || 0})
+                    </span>
+                  </div>
 
-        {/* 💬 Description courte */}
-        <p className="text-gray-600 text-xs line-clamp-2 mb-2">
-          {prod.description}
-        </p>
+                  {/* 💬 Description courte */}
+                  <p className="text-gray-600 text-xs line-clamp-2 mb-2">
+                    {prod.description}
+                  </p>
 
-        {/* 💰 Prix + Panier */}
-        <div className="flex justify-between items-center mt-auto">
-          <span className="text-dropsGreen font-bold text-sm sm:text-base">
-            {prod.prix} €
-          </span>
-          <button
-            onClick={() => handleAddToCart(prod.id_product)}
-            className="p-2 bg-dropsGreen text-white rounded-full hover:bg-dropsDark transition"
-          >
-            <FaShoppingCart className="text-xs sm:text-sm" />
-          </button>
-        </div>
+                  {/* 💰 Prix + Panier */}
+                  <div className="flex justify-between items-center mt-auto">
+                    <span className="text-dropsGreen font-bold text-sm sm:text-base">
+                      {prod.prix} €
+                    </span>
+                    <button
+                      onClick={() => handleAddToCart(prod.id_product)}
+                      className="p-2 bg-dropsGreen text-white rounded-full hover:bg-dropsDark transition"
+                    >
+                      <FaShoppingCart className="text-xs sm:text-sm" />
+                    </button>
+                  </div>
 
-        {/* 🔗 Lien global */}
-        <Link
-          to={`/products/${prod.id_product}`}
-          className="absolute inset-0 rounded-xl bg-black/0 group-hover:bg-black/10 transition"
-        ></Link>
-      </motion.div>
-    ))}
-  </motion.div>
-)}
-
+                  {/* 🔗 Lien global */}
+                  <Link
+                    to={`/products/${prod.id_product}`}
+                    className="absolute inset-0 rounded-xl bg-black/0 group-hover:bg-black/10 transition"
+                  ></Link>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </div>
       </main>
     </div>
   );
 }
+
