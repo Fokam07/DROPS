@@ -313,9 +313,8 @@ function ProductCard({ product }) {
       />
     ));
 
-  const imageSrc = product.image?.startsWith("http")
-    ? product.image
-    : `${API_BASE_URL}/uploads/${product.image}`;
+ const imageSrc = product.image_url;
+
 
   return (
     <Link
