@@ -96,7 +96,7 @@ if (p.image) {
       }
 
       await axios.post(
-        `${API_BASE_URL}/cart/add/${product.id_product}`,
+        `${API_BASE_URL}/api/cart/add/${product.id_product}`,
         { quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
